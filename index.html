@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Visible YouTube Background — Mobile Playback Fixed</title>
+  <title>Visible YouTube Background — Overlay Removed</title>
   <style>
     html, body {
       height: 100%;
@@ -25,16 +25,15 @@
       position: absolute;
       top: 50%;
       left: 50%;
-      width: 177.78vh;
+      width: 177.78vh; /* 16:9 ratio */
       height: 100vh;
       transform: translate(-50%, -50%);
       border: 0;
-      pointer-events: none;
       transition: transform 0.3s ease;
     }
 
-    /* Mobile: rotate video -90° */
-    @media (max-width: 768px) {
+    /* Rotate on mobile */
+    @media (max-width: 900px) {
       #videoFrame {
         width: 100vh;
         height: 177.78vw;
@@ -50,11 +49,13 @@
     }
     a:hover { opacity: 0.85; }
 
+    /* Corner navigation */
     .top-left-phone    { position: fixed; top: 20px; left: 20px; z-index: 2; }
     .top-right-insta   { position: fixed; top: 20px; right: 20px; z-index: 2; }
     .bottom-left-email { position: fixed; bottom: 20px; left: 20px; z-index: 2; }
     .bottom-right-donate { position: fixed; bottom: 20px; right: 20px; z-index: 2; }
 
+    /* Rotated duplicates */
     .rotated {
       position: fixed;
       z-index: 2;
@@ -69,54 +70,31 @@
     .rot-left-bottom  { bottom: 20px; left: 6px; }
     .rot-right-top    { top: 20px; right: 6px; }
     .rot-right-bottom { bottom: 20px; right: 6px; }
-
-    #playButton {
-      position: fixed;
-      inset: 0;
-      display: grid;
-      place-items: center;
-      background: rgba(0, 0, 0, 0.5);
-      color: #fff;
-      font-size: 1.5rem;
-      cursor: pointer;
-      z-index: 3;
-      transition: opacity 0.3s ease;
-      letter-spacing: 0.05em;
-    }
-    #playButton.hidden { opacity: 0; pointer-events: none; }
   </style>
 </head>
 <body>
 
+  <!-- YouTube background -->
   <div class="video-bg">
     <iframe
       id="videoFrame"
-      src="https://www.youtube.com/embed/fDZAwxY55Aw?controls=0&showinfo=0&modestbranding=1&rel=0&playsinline=1"
+      src="https://www.youtube.com/embed/fDZAwxY55Aw?controls=1&modestbranding=1&rel=0&playsinline=1"
       allow="autoplay; encrypted-media; picture-in-picture"
       allowfullscreen
     ></iframe>
   </div>
 
+  <!-- Corner navigation -->
   <div class="top-left-phone"><a href="tel:+13235457269">323-545-7269</a></div>
-  <div class="top-right-insta"><a href="https://instagram.com/432hz" target="_blank">@432hz</a></div>
+  <div class="top-right-insta"><a href="https://instagram.com/432hz" target="_blank" rel="noopener">@432hz</a></div>
   <div class="bottom-left-email"><a href="mailto:contact@432hz.com">contact@432hz.com</a></div>
-  <div class="bottom-right-donate"><a href="https://pump.fun/coin/7H6JKC6KwLBhCHLSKVn5DAhUj7nDQLJKgqCPkkzDpLa4" target="_blank">DONATE</a></div>
+  <div class="bottom-right-donate"><a href="https://pump.fun/coin/7H6JKC6KwLBhCHLSKVn5DAhUj7nDQLJKgqCPkkzDpLa4" target="_blank" rel="noopener">DONATE</a></div>
 
+  <!-- Rotated duplicates -->
   <div class="rotated rot-left-top"><a href="tel:+13235457269">323-545-7269</a></div>
-  <div class="rotated rot-right-top"><a href="https://instagram.com/432hz" target="_blank">@432hz</a></div>
+  <div class="rotated rot-right-top"><a href="https://instagram.com/432hz" target="_blank" rel="noopener">@432hz</a></div>
   <div class="rotated rot-left-bottom"><a href="mailto:contact@432hz.com">contact@432hz.com</a></div>
-  <div class="rotated rot-right-bottom"><a href="https://pump.fun/coin/7H6JKC6KwLBhCHLSKVn5DAhUj7nDQLJKgqCPkkzDpLa4" target="_blank">DONATE</a></div>
-
-  <div id="playButton">▶ PLAY WITH SOUND</div>
-
-  <script>
-    document.getElementById('playButton').addEventListener('click', function() {
-      const iframe = document.getElementById('videoFrame');
-      // On mobile, this reloads the iframe on click (counts as in-frame user interaction)
-      iframe.src = "https://www.youtube.com/embed/fDZAwxY55Aw?autoplay=1&controls=0&modestbranding=1&rel=0&playsinline=1&loop=1&playlist=fDZAwxY55Aw";
-      this.classList.add('hidden');
-    });
-  </script>
+  <div class="rotated rot-right-bottom"><a href="https://pump.fun/coin/7H6JKC6KwLBhCHLSKVn5DAhUj7nDQLJKgqCPkkzDpLa4" target="_blank" rel="noopener">DONATE</a></div>
 
 </body>
 </html>
