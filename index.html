@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Visible YouTube Background — Mobile Rotated Video</title>
+  <title>Visible YouTube Background — Mobile Rotate (Reliable)</title>
   <style>
     html, body {
       height: 100%;
@@ -14,35 +14,30 @@
       overflow: hidden;
     }
 
-    /* Video container */
+    /* Container for background video */
     .video-bg {
       position: fixed;
-      top: 0; left: 0;
-      width: 100%;
-      height: 100%;
+      inset: 0;
       overflow: hidden;
       z-index: 0;
     }
 
-    .video-bg iframe {
+    /* Rotator wrapper lets us rotate cleanly on mobile */
+    .rotator {
       position: absolute;
       top: 50%;
       left: 50%;
-      width: 177.78vh; /* maintain 16:9 */
-      height: 100vh;
+      transform: translate(-50%, -50%);
+    }
+
+    /* The iframe itself; JS will size it exactly */
+    #videoFrame {
+      position: absolute;
+      top: 50%;
+      left: 50%;
       transform: translate(-50%, -50%);
       border: 0;
       pointer-events: none;
-      transition: transform 0.3s ease;
-    }
-
-    /* Mobile: rotate video -90 degrees */
-    @media (max-width: 768px) {
-      .video-bg iframe {
-        width: 100vh;
-        height: 177.78vw;
-        transform: translate(-50%, -50%) rotate(-90deg);
-      }
     }
 
     a {
@@ -88,22 +83,20 @@
       z-index: 3;
       transition: opacity 0.3s ease;
     }
-    #playButton.hidden {
-      opacity: 0;
-      pointer-events: none;
-    }
+    #playButton.hidden { opacity: 0; pointer-events: none; }
   </style>
 </head>
 <body>
 
-  <!-- Background video -->
   <div class="video-bg">
-    <iframe
-      id="videoFrame"
-      src="https://www.youtube.com/embed/fDZAwxY55Aw?controls=0&showinfo=0&modestbranding=1&rel=0&playsinline=1"
-      allow="autoplay; encrypted-media; picture-in-picture"
-      allowfullscreen
-    ></iframe>
+    <div id="rotator" class="rotator">
+      <iframe
+        id="videoFrame"
+        src="https://www.youtube.com/embed/fDZAwxY55Aw?controls=0&showinfo=0&modestbranding=1&rel=0&playsinline=1"
+        allow="autoplay; encrypted-media; picture-in-picture"
+        allowfullscreen
+      ></iframe>
+    </div>
   </div>
 
   <!-- Corner navigation -->
@@ -112,7 +105,7 @@
   <div class="bottom-left-email"><a href="mailto:contact@432hz.com">contact@432hz.com</a></div>
   <div class="bottom-right-donate"><a href="https://pump.fun/coin/7H6JKC6KwLBhCHLSKVn5DAhUj7nDQLJKgqCPkkzDpLa4" target="_blank" rel="noopener noreferrer">DONATE</a></div>
 
-  <!-- Rotated duplicates -->
+  <!-- Rotated corner duplicates -->
   <div class="rotated rot-left-top"><a href="tel:+13235457269">323-545-7269</a></div>
   <div class="rotated rot-right-top"><a href="https://instagram.com/432hz" target="_blank" rel="noopener noreferrer">@432hz</a></div>
   <div class="rotated rot-left-bottom"><a href="mailto:contact@432hz.com">contact@432hz.com</a></div>
@@ -122,6 +115,51 @@
   <div id="playButton">▶ Play with sound</div>
 
   <script>
+    // Size the iframe so it always covers the viewport.
+    // On desktop: normal landscape.
+    // On mobile portrait: rotate counter-clockwise (-90deg) and compute exact pixel dimensions to cover.
+    function sizeVideo() {
+      const rotator = document.getElementById('rotator');
+      const iframe = document.getElementById('videoFrame');
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+
+      const isPortrait = vh > vw && window.matchMedia('(max-width: 768px)').matches;
+
+      if (!isPortrait) {
+        // Desktop / landscape: no rotation, 16:9 cover using viewport height
+        rotator.style.transform = 'translate(-50%, -50%) rotate(0deg)';
+        // Choose k so width = 16k, height = 9k; we want height = vh
+        let k = vh / 9;
+        let W = 16 * k;
+        let H = 9 * k;
+        // If width doesn't cover vw, grow to cover
+        if (W < vw) {
+          k = vw / 16;
+          W = 16 * k;
+          H = 9 * k;
+        }
+        iframe.style.width = W + 'px';
+        iframe.style.height = H + 'px';
+      } else {
+        // Mobile portrait: rotate -90deg
+        rotator.style.transform = 'translate(-50%, -50%) rotate(-90deg)';
+        // Before rotation, iframe has width=16k, height=9k.
+        // After rotation, it appears as width'=9k, height'=16k.
+        // Need width' >= vw and height' >= vh => k >= max(vw/9, vh/16).
+        let k = Math.max(vw / 9, vh / 16);
+        let W = 16 * k;
+        let H = 9 * k;
+        iframe.style.width = W + 'px';
+        iframe.style.height = H + 'px';
+      }
+    }
+
+    window.addEventListener('load', sizeVideo);
+    window.addEventListener('resize', sizeVideo);
+    window.addEventListener('orientationchange', function(){ setTimeout(sizeVideo, 100); });
+
+    // Play with sound on click
     document.getElementById('playButton').addEventListener('click', function() {
       const iframe = document.getElementById('videoFrame');
       iframe.src = "https://www.youtube.com/embed/fDZAwxY55Aw?autoplay=1&controls=0&showinfo=0&modestbranding=1&rel=0&playsinline=1&loop=1&playlist=fDZAwxY55Aw";
